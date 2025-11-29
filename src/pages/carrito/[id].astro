@@ -1,0 +1,122 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { DataComputadores } from "@/data/DataComputadores.ts";
+
+// getStaticPaths le dice a Astro qué IDs generar
+export async function getStaticPaths() {
+  return DataComputadores.map((pc) => ({
+    params: { id: pc.id.toString() },  // convertir a string
+  }));
+}
+
+// Obtener el parámetro id de la URL
+const idParam = Astro.params.id;
+const id = idParam ? Number(idParam) : null;
+
+// Buscar el computador en DataComputadores
+const pc = DataComputadores.find((p) => p.id === id);
+---
+
+{!pc && (
+  <div class="text-center text-red-500 text-3xl mt-20">
+    Producto no encontrado con ID: {idParam}
+  </div>
+)}
+
+{pc && (
+  <Layout title={`Carrito - ${pc.nombre_completo}`}>
+    <main class="container mx-auto px-6 py-10">
+      <h1 class="text-4xl font-bold mb-6 text-center text-white">Carrito de Compra</h1>
+
+      <form id="form-carrito" class="bg-black shadow-xl rounded-xl p-6 space-y-6 max-w-2xl mx-auto">
+        <div>
+          <label class="block font-semibold mb-1 text-white">Nombre del comprador:</label>
+          <input type="text" name="nombre_comprador" required
+                 class="w-full border rounded px-3 py-2 bg-white text-black"
+                 placeholder="Escribe tu nombre"/>
+        </div>
+
+        <input type="hidden" name="id" value={pc.id}/>
+
+        <div>
+          <label class="block font-semibold mb-1 text-white">Nombre del Computador:</label>
+          <input type="text" name="nombre_completo" value={pc.nombre_completo} readonly
+                 class="w-full border rounded px-3 py-2 bg-white text-black"/>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-white">Tipo:</label>
+          <input type="text" name="tipo" value={pc.tipo} readonly
+                 class="w-full border rounded px-3 py-2 bg-white text-black"/>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-white">Procesador:</label>
+          <input type="text" name="procesador" value={pc.procesador} readonly
+                 class="w-full border rounded px-3 py-2 bg-white text-black"/>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-white">RAM:</label>
+          <input type="text" name="ram" value={pc.ram} readonly
+                 class="w-full border rounded px-3 py-2 bg-white text-black"/>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-white">Almacenamiento:</label>
+          <input type="text" name="almacenamiento" value={pc.almacenamiento} readonly
+                 class="w-full border rounded px-3 py-2 bg-white text-black"/>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-white">Tarjeta Gráfica:</label>
+          <input type="text" name="tarjeta_grafica" value={pc.tarjeta_grafica} readonly
+                 class="w-full border rounded px-3 py-2 bg-white text-black"/>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-white">Precio:</label>
+          <input type="text" name="precio" value={pc.precio} readonly
+                 class="w-full border rounded px-3 py-2 bg-white text-black"/>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
+          Confirmar compra
+        </button>
+      </form>
+    </main>
+
+    <!-- Script para enviar el formulario con fetch y mostrar alerta -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("form-carrito");
+
+        form?.addEventListener("submit", async (e) => {
+          e.preventDefault(); // evita recarga de página
+
+         const formData = new FormData(form as HTMLFormElement); 
+
+          try {
+            const res = await fetch("/api/carrito", {
+              method: "POST",
+              body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              alert("Compra confirmada exitosamente");
+              window.location.href = "/";
+            } else {
+              alert(data.message || "Error al procesar compra");
+            }
+          } catch (err) {
+            console.error(err);
+            alert("Error al conectar con el servidor");
+          }
+        });
+      });
+    </script>
+  </Layout>
+)}

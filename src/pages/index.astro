@@ -1,0 +1,74 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { DataComputadores } from "@/data/DataComputadores.ts";
+---
+
+<Layout title="Catálogo de Computadores">
+  <main 
+    id="content" 
+    class="px-8 py-16 text-center bg-cover bg-center bg-no-repeat" 
+    style="background-image: url('/src/assets/fondo.png');"
+  >
+    <section id="computadores" class="py-20">
+      <h2 class="text-4xl font-bold mb-10 text-white">Catálogo de Computadores</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
+
+        {DataComputadores.map((pc) => (
+          <div class="w-full">
+            <!-- Imagen principal con toggle -->
+            <button 
+              class="block group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full cursor-pointer toggle-btn"
+              data-id={pc.id}
+            >
+              <img 
+                src={pc.imagen}
+                alt={pc.nombre_completo}
+                class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300 border-4 border-white rounded-lg shadow-xl"
+              />
+            </button>
+
+            <!-- Caja desplegable -->
+            <div
+              id={`box-${pc.id}`}
+              class="hidden mt-4 bg-transparent text-white p-4 rounded-lg border-t-4 border-white"
+            >
+              <h3 class="text-2xl font-semibold mb-3">{pc.nombre_completo}</h3>
+              <ul class="text-left space-y-1">
+                <li><strong>Tipo:</strong> {pc.tipo}</li>
+                <li><strong>Procesador:</strong> {pc.procesador}</li>
+                <li><strong>RAM:</strong> {pc.ram}</li>
+                <li><strong>Almacenamiento:</strong> {pc.almacenamiento}</li>
+                <li><strong>Tarjeta Gráfica:</strong> {pc.tarjeta_grafica}</li>
+                <li><strong>Precio:</strong> {pc.precio}</li>
+              </ul>
+
+              <!-- BOTÓN COMPRA AHORA -->
+              <a 
+                href={`/carrito/${pc.id}`} 
+                class="mt-4 block bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition text-center"
+              >
+                Comprar ahora
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <!-- SCRIPT PARA ABRIR CADA CAJA -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const botones = document.querySelectorAll(".toggle-btn");
+      botones.forEach((btn) => {
+        const element = btn as HTMLElement;
+        element.addEventListener("click", () => {
+          const id = element.dataset.id;
+          if (!id) return;
+          const box = document.getElementById(`box-${id}`);
+          if (box) box.classList.toggle("hidden");
+        });
+      });
+    });
+  </script>
+</Layout>
